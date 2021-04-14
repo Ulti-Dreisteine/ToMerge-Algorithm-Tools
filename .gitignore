@@ -1,0 +1,9 @@
+.idea/
+.git/
+.vscode/
+cache/
+mod/logs
+trash/
+.DS_Store
+*.pyc
+__pycache__/

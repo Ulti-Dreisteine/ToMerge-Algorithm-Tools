@@ -1,0 +1,18 @@
+# ---- 项目目录结构 ---------------------------------------------------------------------------------
+
+root:
+    bin:
+    cache:
+    config:
+    data:
+        raw:
+        runtime:
+    docs:
+    file:
+    img:
+    mod:
+        config:
+    report:
+    src:
+    tmp:
+    trash:
