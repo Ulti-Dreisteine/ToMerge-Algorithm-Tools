@@ -18,15 +18,15 @@ class PostgresqlConnector(object):
 	
 	def execute(self, sql: str):
 		"""
-        执行SQL语句
-        
-        Example:
-        ------------------------------------------------------------
-        pc = PostgresqlConnector(config_params)
-	response = pc.execute("SELECT * FROM t_pollution_forecast WHERE f_area_code = '{}'".format(area_code)).fetchall()
-	pc.close()
-	------------------------------------------------------------
-        """
+		执行SQL语句
+
+		Example:
+		------------------------------------------------------------
+		pc = PostgresqlConnector(config_params)
+		response = pc.execute("SELECT * FROM t_pollution_forecast WHERE f_area_code = '{}'".format(area_code)).fetchall()
+		pc.close()
+		------------------------------------------------------------
+		"""
 		try:
 			self.cursor.execute(sql)
 		except psycopg2.InternalError as e:
