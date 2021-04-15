@@ -23,9 +23,9 @@ class PostgresqlConnector(object):
         Example:
         ------------------------------------------------------------
         pc = PostgresqlConnector(config_params)
-		response = pc.execute("SELECT * FROM t_pollution_forecast WHERE f_area_code = '{}'".format(area_code)).fetchall()
-		pc.close()
-		------------------------------------------------------------
+	response = pc.execute("SELECT * FROM t_pollution_forecast WHERE f_area_code = '{}'".format(area_code)).fetchall()
+	pc.close()
+	------------------------------------------------------------
         """
 		try:
 			self.cursor.execute(sql)
