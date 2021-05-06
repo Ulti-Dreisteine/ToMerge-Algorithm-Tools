@@ -26,6 +26,72 @@ from ..data_process import search_nearest_neighbors_in_list
 from .numpy import savitzky_golay
 
 
+def fill_miss_data(data: pd.DataFrame, fields2fill: list = None):
+	"""
+	数据缺失值填补
+	
+	:param data: pd.DataFrame, 待填补数据表
+	:param fields2fill: list of strs, 需要进行缺失填补的字段
+	"""
+	data = data.copy()
+	
+	if fields2fill is None:
+		fields2fill = data.columns
+	
+	# 逐字段进行缺失值填补.
+	for field in fields2fill:
+		print('Implementing field "{}".'.format(field))
+		values = list(data.loc[:, field])
+		
+		total_idxs = list(range(len(values)))
+		ineffec_idxs = list(np.argwhere(np.isnan(values)).flatten())  # 通过 np.nan 判断缺失
+		effec_idxs = list(set(total_idxs).difference(set(ineffec_idxs)))
+		
+		ineffec_idxs.sort()
+		effec_idxs.sort()
+		
+		for idx in ineffec_idxs:
+			neighbor_effec_idxs = search_nearest_neighbors_in_list(effec_idxs, idx)
+			value2implement = np.mean(data.loc[neighbor_effec_idxs, field])
+			data.loc[idx, field] = value2implement
+	print('\n')
+	
+	return data
+    
+
+def norm_cols(data, cols_bounds: dict) -> pd.DataFrame:
+	"""
+	数据表按照列进行归一化
+	
+	:param data: pd.DataFrame, 待归一化数据表
+	:param cols_bounds: dict, 各字段设定归一化的最小最大值边界
+	
+	Note:
+		1. 只有cols_bounds中选中的列才会进行归一化;
+		2. 如果实际数据中该字段值超出界限则需要调整cols_bounds中的上下界设置;
+	"""
+	data = data.copy()
+	for col in cols_bounds.keys():
+		if col in data.columns:
+			bounds = cols_bounds[col]
+			col_min, col_max = data[col].min(), data[col].max()
+			
+			print(col, col_min, bounds)
+			if (col_min < bounds[0]) | (col_max > bounds[1]):
+				warnings.warn(
+					"var bounds error: column {}'s actual bounds are [{}, {}], while the bounds are "
+					"set to [{}, {}]".format(
+						col, col_min, col_max, bounds[0], bounds[1]
+					)
+				)
+				data.loc[data[col] < bounds[0], col] = bounds[0]
+				data.loc[data[col] > bounds[1], col] = bounds[1]
+			
+			data[col] = data[col].apply(lambda x: (x - bounds[0]) / (bounds[1] - bounds[0]))
+	
+	return data
+
+
 def random_sampling(df: pd.DataFrame, keep_n: int, seed: int = 0) -> pd.DataFrame:
     df = df.copy()
 
