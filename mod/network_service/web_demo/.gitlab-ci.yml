@@ -1,0 +1,44 @@
+.base: &base
+  only:
+    - master
+    - develop
+    - /^feat(ure)?\/.*$/
+
+.cache: &cache
+  untracked: true
+  key: "$CI_COMMIT_SHA-$CI_COMMIT_REF_SLUG"
+
+before_script:
+  - wget -q http://hx.infra/hx.tar.gz -O ./hx.tar.gz && tar -xzf hx.tar.gz && rm ./hx.tar.gz && chmod +x hx && mv hx /usr/bin/hx && hx -h
+
+stages:
+  - test
+  - ship
+  - deploy
+
+test:
+  <<: *base
+  cache: *cache
+  stage: test
+  image: ccr.ccs.tencentyun.com/rk-ai/ai-cpu:0.0.1
+  script:
+    - hx run make test
+
+ship:
+  <<: *base
+  cache: *cache
+  stage: ship
+  image: ${RK_DOCKER_REGISTRY}/${BUILDER_DOCKER}
+  script:
+    - hx ship --push
+  dependencies:
+    - test
+
+deploy:
+  <<: *base
+  stage: deploy
+  image: ${RK_DOCKER_REGISTRY}/rk-infra/env-launcher
+  script:
+    - hx apply
+  dependencies:
+    - ship
